@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Writing Practice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+        }
+        .task-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .task-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        .task-description {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 200px;
+        }
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+        .word-count {
+            text-align: right;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .message {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: green;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>IELTS Writing Practice</h1>
+        <p>Complete both Task 1 and Task 2 within the time limit.</p>
+
+        <form id="writingForm">
+            <div class="task-section">
+                <div class="task-title">Task 1 (Suggested time: 20 minutes)</div>
+                <div class="task-description">
+                    <p>The chart below shows the total number of students enrolled in different departments at a university from 2005 to 2015.</p>
+                    <p>Summarise the information by selecting and reporting the main features, and make comparisons where relevant.</p>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <img src="https://i.postimg.cc/prJz0w4T/chart-1.png" alt="University Enrollment Chart" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 5px;">
+                    </div>
+                </div>
+                <textarea id="task1" name="task1" oninput="updateWordCount('task1-count')" placeholder="Write your response for Task 1 here..."></textarea>
+                <div class="word-count">Word count: <span id="task1-count">0</span></div>
+            </div>
+
+            <div class="task-section">
+                <div class="task-title">Task 2 (Suggested time: 40 minutes)</div>
+                <div class="task-description">
+                    <p>Some people believe that modern technology has made people's lives better, while others argue that it has made them worse.</p>
+                    <p>Discuss both views and give your own opinion.</p>
+                </div>
+                <textarea id="task2" name="task2" oninput="updateWordCount('task2-count')" placeholder="Write your response for Task 2 here..."></textarea>
+                <div class="word-count">Word count: <span id="task2-count">0</span></div>
+            </div>
+
+            <button type="submit" class="submit-btn">Nộp Bài và Lưu Lại</button>
+        </form>
+
+        <div class="loading" id="loadingMessage">Đang lưu bài làm, vui lòng đợi...</div>
+        <div class="message" id="successMessage">Bài làm của bạn đã được lưu thành công!</div>
+    </div>
+
+    <script>
+        function updateWordCount(id) {
+            const text = document.getElementById(id.replace('-count', '')).value;
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            document.getElementById(id).textContent = words.length;
+        }
+
+        document.getElementById('writingForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const loadingMessage = document.getElementById('loadingMessage');
+            const successMessage = document.getElementById('successMessage');
+
+            loadingMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+
+            const formData = new FormData(form);
+            
+            const data = {
+                timestamp: new Date().toISOString(),
+                task1: formData.get('task1'),
+                task2: formData.get('task2')
+            };
+
+            const url = 'https://script.google.com/macros/s/AKfycbxszFX4706pyv2cc1e_hcaNjWUk661vmZs_HomcRsOpnc9B4l7ycvkU0em95oktK8bjBw/exec'; // *** THAY THẾ URL TẠI ĐÂY ***
+
+            fetch(url, {
+                method: 'POST',
+                mode: 'no-cors', // Cần thiết để gửi dữ liệu đến Google Apps Script
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => {
+                loadingMessage.style.display = 'none';
+                successMessage.style.display = 'block';
+                form.reset();
+                updateWordCount('task1-count');
+                updateWordCount('task2-count');
+            })
+            .catch(error => {
+                loadingMessage.style.display = 'none';
+                console.error('Lỗi khi gửi dữ liệu:', error);
+                alert('Có lỗi xảy ra, vui lòng thử lại.');
+            });
+        });
+    </script>
+
+</body>
+</html>
